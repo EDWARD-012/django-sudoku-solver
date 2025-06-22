@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 40px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 0 auto 20px auto;
+        }
+        td {
+            border: 1px solid #333;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        input[type="text"] {
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            text-align: center;
+            border: none;
+        }
+        td:nth-child(3), td:nth-child(6) {
+            border-right: 2px solid #000;
+        }
+        tr:nth-child(3) td, tr:nth-child(6) td {
+            border-bottom: 2px solid #000;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sudoku Solver</h1>
+    <form method="POST" action="{% url 'solve' %}" id="sudoku-form">
+        {% csrf_token %}
+        <table>
+            <tbody>
+                {% for row in "012345678" %}
+                <tr>
+                    {% for col in "012345678" %}
+                    <td>
+                        <input type="text" name="cell{{ forloop.parentloop.counter0 }}{{ forloop.counter0 }}" maxlength="1" pattern="[1-9]" autocomplete="off">
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Solve</button>
+    </form>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const grid = [];
+
+        // Build a 2D grid of inputs for easy navigation
+        for (let i = 0; i < 9; i++) {
+            grid[i] = [];
+            for (let j = 0; j < 9; j++) {
+                const cell = document.querySelector(`[name="cell${i}${j}"]`);
+                grid[i][j] = cell;
+            }
+        }
+
+        // Arrow key navigation
+        document.querySelectorAll('input[type="text"]').forEach((input, rowIndex) => {
+            input.addEventListener('keydown', (e) => {
+                const name = input.getAttribute("name");
+                const i = parseInt(name[4]);
+                const j = parseInt(name[5]);
+
+                switch (e.key) {
+                    case "ArrowUp":
+                        if (i > 0) grid[i - 1][j].focus();
+                        e.preventDefault();
+                        break;
+                    case "ArrowDown":
+                        if (i < 8) grid[i + 1][j].focus();
+                        e.preventDefault();
+                        break;
+                    case "ArrowLeft":
+                        if (j > 0) grid[i][j - 1].focus();
+                        e.preventDefault();
+                        break;
+                    case "ArrowRight":
+                        if (j < 8) grid[i][j + 1].focus();
+                        e.preventDefault();
+                        break;
+                }
+            });
+        });
+    });
+</script>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sudoku Solutions</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        td {
+            border: 1px solid #333;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        td:nth-child(3), td:nth-child(6) {
+            border-right: 2px solid black;
+        }
+        tr:nth-child(3) td, tr:nth-child(6) td {
+            border-bottom: 2px solid black;
+        }
+        h1, h2, a {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sudoku Solutions</h1>
+    <h2>Input Board</h2>
+    <table>
+        {% for row in input_board %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Found {{ solutions|length }} Solution{{ solutions|pluralize }}</h2>
+
+    {% for sol in solutions %}
+    <table>
+        {% for row in sol %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+
+    <div style="text-align:center;">
+        <a href="{% url 'home' %}">Try Another Puzzle</a>
+    </div>
+</body>
+</html>
