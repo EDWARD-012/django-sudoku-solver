@@ -1,105 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Solver</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 40px;
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sudoku Solver</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #d6e6ff); /* Light blue gradient */
+      color: #1e3a8a; /* Deep blue text */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      font-family: cursive;
+    }
+    .container {
+      background-color: #ffffff; /* Clean white container */
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2); /* Soft blue shadow */
+      width: 100%;
+      max-width: min(90vw, 36rem); /* Responsive max-width */
+    }
+    h1 {
+      color: #1e40af; /* Vibrant blue header */
+      font-family: cursive;
+      font-size: 200px;
+    }
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+        gap: 0.125rem;
+        justify-items: center;
+        align-items: center;
+        background-color: #e5e7eb; /* Light gray grid background */
+        padding: 0.25rem;
+        border: 2px solid #3b82f6; /* Bright blue border */
+        width: 100%;
+        max-width: min(80vw, 24rem); /* Reduced width for better centering */
+        margin: 0 auto; /* Center horizontally */
+        aspect-ratio: 1;
+    }
+    input[type="text"] {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1;
+        text-align: center;
+        border-radius: 0;
+        border: 1px solid #bfdbfe; /* Light blue border */
+        background-color: #f9fafb; /* Off-white cell background */
+        color: #1e3a8a; /* Deep blue text */
+        font-size: clamp(0.875rem, 4vw, 1.25rem);
+        transition: border-color 0.3s, transform 0.2s;
+        outline: none;
+        box-sizing: border-box;
+        /* Thicker borders for 3x3 sub-grids */
+        &[name$="2"], &[name$="5"] {
+        border-right-width: 2px;
+        border-right-color: #3b82f6;
         }
-        table {
-            border-collapse: collapse;
-            margin: 0 auto 20px auto;
+        &[name^="cell2"], &[name^="cell5"] {
+        border-bottom-width: 2px;
+        border-bottom-color: #3b82f6;
         }
-        td {
-            border: 1px solid #333;
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        input[type="text"] {
-            width: 36px;
-            height: 36px;
-            font-size: 18px;
-            text-align: center;
-            border: none;
-        }
-        td:nth-child(3), td:nth-child(6) {
-            border-right: 2px solid #000;
-        }
-        tr:nth-child(3) td, tr:nth-child(6) td {
-            border-bottom: 2px solid #000;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Sudoku Solver</h1>
-    <form method="POST" action="{% url 'solve' %}" id="sudoku-form">
-        {% csrf_token %}
-        <table>
-            <tbody>
-                {% for row in "012345678" %}
-                <tr>
+    }
+    input[type="text"]:focus {
+        border-color: #2563eb; /* Darker blue on focus */
+        transform: scale(1.05);
+        z-index: 10;
+    }
+    button {
+        display: inline-block; /* Fit button to text */
+        background: linear-gradient(45deg, #3b82f6, #60a5fa); /* Blue gradient */
+        color: #ffffff; /* White text */
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: clamp(0.875rem, 4vw, 1rem);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); /* Blue glow */
+        margin-top: 1rem;
+    }
+    button:hover {
+        background: linear-gradient(45deg, #60a5fa, #3b82f6); /* Reverse blue gradient on hover */
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+    button:active {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2);
+    }
+    .typing-text {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid #1e3a8a; /* Deep blue cursor */
+      width: 0;
+      animation: typing 3s steps(24) infinite; /* Infinite typing */
+    }
+    .typing-text::after {
+      content: '';
+      display: inline-block;
+      width: 0;
+      height: 1em;
+      border-right: 2px solid #1e3a8a; /* Deep blue caret */
+      animation: blink-caret 0.75s step-end infinite; /* Separate caret blink */
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 24ch; } /* Match exact character count */
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #1e3a8a; }
+    }
+    @media (max-width: 640px) {
+      .input-grid {
+      gap: 0.1rem;
+      padding: 0.2rem;
+    }
+    input[type="text"] {
+      font-size: clamp(0.75rem, 3.5vw, 1rem);
+    }
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+    </head>
+    <body class="min-h-screen flex items-center justify-center p-4">
+        <div class="container">
+            <h1 class="text-center">Sudoku Solver</h1>
+            <p class="text-center font-medium mb-1">Embrace the dark art of
+                cheating!</p>
+            <p class="text-center text-lg font-semibold mb-6">
+                <span class="typing-text">Solve Sudoku with Edward!!!!</span>
+            </p>
+
+            <form method="POST" action="{% url 'solve' %}" id="sudoku-form">
+                {% csrf_token %}
+                <div class="input-grid">
+                    {% for row in "012345678" %}
                     {% for col in "012345678" %}
-                    <td>
-                        <input type="text" name="cell{{ forloop.parentloop.counter0 }}{{ forloop.counter0 }}" maxlength="1" pattern="[1-9]" autocomplete="off">
-                    </td>
+                    <input
+                        type="text"
+                        name="cell{{ forloop.parentloop.counter0 }}{{ forloop.counter0 }}"
+                        maxlength="1"
+                        pattern="[1-9]"
+                        autocomplete="off"
+                        class="text-center" />
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button type="submit">Solve</button>
-    </form>
-</body>
-<script>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center mt-6">
+                    <button
+                        type="submit"
+                        class="glow-button">
+                        Challenge Edward to Solve This
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const grid = [];
+      const grid = [];
 
-        // Build a 2D grid of inputs for easy navigation
-        for (let i = 0; i < 9; i++) {
-            grid[i] = [];
-            for (let j = 0; j < 9; j++) {
-                const cell = document.querySelector(`[name="cell${i}${j}"]`);
-                grid[i][j] = cell;
-            }
+      for (let i = 0; i < 9; i++) {
+        grid[i] = [];
+        for (let j = 0; j < 9; j++) {
+          const cell = document.querySelector(`[name="cell${i}${j}"]`);
+          grid[i][j] = cell;
         }
+      }
 
-        // Arrow key navigation
-        document.querySelectorAll('input[type="text"]').forEach((input, rowIndex) => {
-            input.addEventListener('keydown', (e) => {
-                const name = input.getAttribute("name");
-                const i = parseInt(name[4]);
-                const j = parseInt(name[5]);
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('keydown', (e) => {
+          const name = input.getAttribute("name");
+          const i = parseInt(name[4]);
+          const j = parseInt(name[5]);
 
-                switch (e.key) {
-                    case "ArrowUp":
-                        if (i > 0) grid[i - 1][j].focus();
-                        e.preventDefault();
-                        break;
-                    case "ArrowDown":
-                        if (i < 8) grid[i + 1][j].focus();
-                        e.preventDefault();
-                        break;
-                    case "ArrowLeft":
-                        if (j > 0) grid[i][j - 1].focus();
-                        e.preventDefault();
-                        break;
-                    case "ArrowRight":
-                        if (j < 8) grid[i][j + 1].focus();
-                        e.preventDefault();
-                        break;
-                }
-            });
+          switch (e.key) {
+            case "ArrowUp":
+              if (i > 0) grid[i - 1][j].focus();
+              e.preventDefault();
+              break;
+            case "ArrowDown":
+              if (i < 8) grid[i + 1][j].focus();
+              e.preventDefault();
+              break;
+            case "ArrowLeft":
+              if (j > 0) grid[i][j - 1].focus();
+              e.preventDefault();
+              break;
+            case "ArrowRight":
+              if (j < 8) grid[i][j + 1].focus();
+              e.preventDefault();
+              break;
+          }
         });
+      });
     });
-</script>
+  </script>
+    </body>
 </html>
