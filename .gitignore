@@ -1,13 +1,32 @@
-# Django
-*.pyc
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Django DB + local settings
 db.sqlite3
 *.log
-
-# Environment
-venv/
 .env
+*.pot
+*.pyc
 
-# IDE
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# VS Code
 .vscode/
+
+# PyCharm / JetBrains
 .idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Migrations (optional — only if you regenerate them often)
+# Uncomment if you want to ignore them
+# */migrations/*.py
+# */migrations/*.pyc
