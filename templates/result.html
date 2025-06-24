@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <title>Sudoku Solutions</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        h1, h2, a {
+            text-align: center;
+        }
         table {
             border-collapse: collapse;
             margin: 20px auto;
@@ -14,6 +22,7 @@
             height: 40px;
             text-align: center;
             vertical-align: middle;
+            background-color: white;
         }
         td:nth-child(3), td:nth-child(6) {
             border-right: 2px solid black;
@@ -21,13 +30,18 @@
         tr:nth-child(3) td, tr:nth-child(6) td {
             border-bottom: 2px solid black;
         }
-        h1, h2, a {
-            text-align: center;
+        .solution {
+            margin-bottom: 40px;
+            padding: 10px;
+            border: 1px solid #aaa;
+            background-color: #fdfdfd;
+            box-shadow: 0 0 6px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <h1>Sudoku Solutions</h1>
+    <h1>Sudoku Solver Results</h1>
+
     <h2>Input Board</h2>
     <table>
         {% for row in input_board %}
@@ -41,20 +55,26 @@
 
     <h2>Found {{ solutions|length }} Solution{{ solutions|pluralize }}</h2>
 
+    {% if solutions %}
     {% for sol in solutions %}
-    <table>
-        {% for row in sol %}
-        <tr>
-            {% for cell in row %}
-            <td>{{ cell }}</td>
+    <div class="solution">
+        <table>
+            {% for row in sol %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
             {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
+        </table>
+    </div>
     {% endfor %}
+    {% else %}
+    <p style="text-align: center;">No solution found.</p>
+    {% endif %}
 
     <div style="text-align:center;">
-        <a href="{% url 'home' %}">Try Another Puzzle</a>
+        <a href="{% url 'home' %}">🔁 Try Another Puzzle</a>
     </div>
 </body>
 </html>
